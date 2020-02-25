@@ -165,8 +165,6 @@ button {
     overflow: hidden;
     margin-right: 20px;
   }
-  &__img {
-  }
   &__login{
     margin-top: 15px;
   }
