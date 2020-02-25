@@ -3,32 +3,52 @@
     <section>
       <div class="container"> 
 
-        <!-- search -->
-        <search 
-          :value="search"
-          placeholder="Имя пользователя Github"
-          @search="search = $event"/>
-
-        <button class="btn btnPrimary" @click="getRepo">Search</button>
-
-        <!-- wrapper -->
-        <div class="repos__wrapper" v-show="repos">
-          <!-- title -->
-          <div class="repos__title">
-            <span>Название</span>
-            <span>Изменялся</span>
+        <!-- user__wrapper -->
+        <div class="user__wrapper" v-if="user">
+          <div class="user__avatar">
+            <img class="user__img" :src="user.avatar_url" alt="Avatar">
           </div>
-          <!-- item -->
-          <div class="repos__info" v-for="repo in repos" :key="repo.id">
-            <div class="repos__item">
-              <a class="link" target="_blank" :href="repo.html_url">{{ repo.name}}</a>
-            </div>
-            <span class="repo__stars"> {{ show(repo.updated_at) }} 🕒</span>
+          <div class="user__info">
+            <p class="user__login">Логин: {{ user.login }}</p>
+            <p class="user__name">Имя: {{ user.name }}</p>
+            <p class="user__count-repos">Количество репозиториев: {{ user.public_repos }}</p>
           </div>
         </div>
+        <!-- /.user__wrapper -->
 
-        <p class="error" v-show="error">{{ error }}</p>
 
+        <!-- search__wrapper -->
+        <div class="search__wrapper">
+
+          <!-- search -->
+          <search 
+            :value="search"
+            placeholder="Имя пользователя Github"
+            @search="search = $event"/>
+
+          <button class="btn btnPrimary" @click="getRepo">Search</button>
+
+          <!-- wrapper -->
+          <div class="repos__wrapper" v-show="repos">
+            <!-- title -->
+            <div class="repos__title">
+              <span>Название</span>
+              <span>Изменялся</span>
+            </div>
+            <!-- item -->
+            <div class="repos__info" v-for="repo in repos" :key="repo.id">
+              <div class="repos__item">
+                <a class="link" target="_blank" :href="repo.html_url">{{ repo.name}}</a>
+              </div>
+              <span class="repo__stars"> {{ show(repo.updated_at) }} 🕒</span>
+            </div>
+          </div>
+
+          <p class="error" v-show="error">{{ error }}</p>
+
+        </div>
+        <!-- /.search__wrapper -->
+        
       </div>
     </section>
   </div>
@@ -44,6 +64,7 @@ export default {
     return {
       search: '',
       repos: null,
+      user: null,
       error: null
     }
   },
@@ -54,10 +75,27 @@ export default {
           .then(res => {
             this.repos = res.data
             this.error = null
+            
+            this.getUserInfo(this.search)
           })
           .catch(err => {
             this.error = "Такой пользователь не найден!"
+            this.user = null
             this.repos = null
+          })
+    },
+    getUserInfo(user) {
+      axios
+        .get('https://api.github.com/users/' + user)
+          .then(res => {
+            this.user = res.data
+            this.error = null
+
+          })
+          .catch(err => {
+            this.error = "Такой пользователь не найден!"
+            this.user = null
+            
           })
     },
     show(time) {
@@ -70,7 +108,7 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.container {
+.search__wrapper {
   display: flex;
   align-items: center;
   flex-direction: column;
@@ -107,4 +145,36 @@ button {
   color: rgb(236, 37, 37)
 }
 
+
+
+// User
+.user {
+  &__wrapper {
+    display: flex;
+    align-items: center;
+    margin: 30px 0;
+  } 
+  &__info{
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  &__avatar{
+    border-radius: 50%;
+    max-width: 150px;
+    overflow: hidden;
+    margin-right: 20px;
+  }
+  &__img {
+  }
+  &__login{
+    margin-top: 15px;
+  }
+  &__name{
+    margin-top: 15px;
+  }
+  &__count-repos{
+    margin-top: 15px;
+  }
+}
 </style>
