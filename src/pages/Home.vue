@@ -151,6 +151,7 @@ button {
 .user {
   &__wrapper {
     display: flex;
+    justify-content: center;;
     align-items: center;
     margin: 30px 0;
   } 
